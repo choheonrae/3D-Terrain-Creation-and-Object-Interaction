@@ -1,0 +1,78 @@
+let cols, rows;
+let scl=20;
+let w = 1400;
+let h = 1000;
+let terrain = [];
+let flying = 0
+
+function fish(){
+  //몸통
+  fill(241,255,37);
+  ellipse(0,0,80,30);
+  //눈
+  fill(0);
+  circle(-20,0,6);
+  //꼬리
+  fill(255,146,37);
+  triangle(38,0,43,15,43,-15);
+}
+
+function setup() {
+  createCanvas(600, 600,WEBGL);
+  
+  cols = w / scl;
+  rows = h / scl;
+  
+  for(let x=0;x<cols;x++){  //terrain에 배열 값 0으로 초기화해서 생성
+    terrain[x] = [];
+    for(let y=0;y<rows;y++){
+      terrain[x][y] = 0;
+    }
+  }
+}
+
+function draw() {
+  flying -= 0.1;
+  let yoff=flying;
+  for(let y=0;y<rows;y++){
+    let xoff=0;
+    for(let x=0;x<cols;x++){
+      terrain[x][y] = map(noise(xoff,yoff),0,1,-50,50);
+      xoff+=0.2;
+    }
+    yoff+=0.2;
+  }
+  
+  background(236,175,114);
+  noStroke();
+  
+  fill(17,96,253);
+  rotateX(PI/3);  //X축으로 60도를 회전시킴
+  translate(-w/2,-h/10);  //3D 화면인 WEBGL로 바꿔서 가운데에서 오른쪽 밑으로 시작함 그래서 이동시켜줘야함
+  for(let y=0; y<rows-1; y++){
+    beginShape(TRIANGLE_STRIP);
+    for(let x=0; x<cols; x++){
+      let z = terrain[x][y];
+      fill(20,40,z+180);
+      vertex(x*scl,y*scl,terrain[x][y]);
+      vertex(x*scl,(y+1)*scl,terrain[x][y+1]);
+    }
+    endShape();
+  }
+  //해
+  push();
+  translate(width+100, height/2-330);
+  rotateX(-PI / 3);
+  fill(230, 0, 0);
+  ellipse(0,0,180);
+  pop();
+  
+  //물고기
+  push();
+  translate(width+100, height/2-230);
+  rotateX(-PI/3);
+  translate(mouseX-300,mouseY/2-200);
+  fish();
+  normalMaterial();
+  pop();
+}
